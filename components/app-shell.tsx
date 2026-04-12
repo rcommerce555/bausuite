@@ -45,6 +45,3 @@ export function AppShell({ title, children }: { title: string; children: React.R
     </div>
   );
 }
-    </div>
-  );
-}
