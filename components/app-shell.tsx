@@ -7,7 +7,7 @@ const nav = [
   ['/site', 'Bauleitungs-Copilot'],
   ['/billing', 'Billing'],
   ['/admin', 'Admin'],
-];
+] as const;
 
 export function AppShell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -19,7 +19,7 @@ export function AppShell({ title, children }: { title: string; children: React.R
         </div>
         <nav className="p-3">
           {nav.map(([href, label]) => (
-            <Link key={href} href={href as any} className="mb-1 block rounded-2xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-100">
+            <Link key={href} href={href} className="mb-1 block rounded-2xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-100">
               {label}
             </Link>
           ))}
@@ -32,12 +32,15 @@ export function AppShell({ title, children }: { title: string; children: React.R
             <div className="text-xl font-semibold">{title}</div>
           </div>
           <div className="flex items-center gap-3">
-            <Link href={"/" as any} className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700">Zur Landingpage</Link>
+            <Link href="/" className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700">Zur Landingpage</Link>
             <LogoutButton />
           </div>
         </div>
         {children}
       </main>
+    </div>
+  );
+}
     </div>
   );
 }
