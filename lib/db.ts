@@ -66,10 +66,10 @@ export async function saveDocumentAnalysis(input: {
 
   const { error: insightError } = await supabase.from('document_insights').insert({
     document_id: document.id,
-    risk_items: input.analysis.risks,
-    actions: input.analysis.actions,
-    entities: input.analysis.entities,
-    raw_output: input.analysis,
+  risk_items: input.analysis.critical_missing,
+actions: input.analysis.actions_today,
+entities: [input.analysis.decision_required],
+raw_output: input.analysis,
   });
   if (insightError) throw insightError;
 
