@@ -23,7 +23,8 @@ export function LoginForm() {
       setError(error.message);
       return;
     }
-    router.push(searchParams.get('next') || '/dashboard');
+    const nextUrl = searchParams.get('next') ?? '/dashboard';
+router.push(nextUrl as any);
     router.refresh();
   }
 
