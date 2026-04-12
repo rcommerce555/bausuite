@@ -1,13 +1,7 @@
 import Link from 'next/link';
 import { LogoutButton } from '@/components/logout-button';
 
-const nav = [
-  ['/dashboard', 'Dashboard'],
-  ['/documents', 'Dokumenten-Copilot'],
-  ['/site', 'Bauleitungs-Copilot'],
-  ['/billing', 'Billing'],
-  ['/admin', 'Admin'],
-] as const;
+
 
 export function AppShell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -18,12 +12,22 @@ export function AppShell({ title, children }: { title: string; children: React.R
           <div className="font-semibold">Demo Nordbau GmbH</div>
         </div>
         <nav className="p-3">
-          {nav.map(([href, label]) => (
-            <Link key={href} href={href} className="mb-1 block rounded-2xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-100">
-              {label}
-            </Link>
-          ))}
-        </nav>
+  <Link href="/dashboard" className="mb-1 block rounded-2xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-100">
+    Dashboard
+  </Link>
+  <Link href="/documents" className="mb-1 block rounded-2xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-100">
+    Dokumenten-Copilot
+  </Link>
+  <Link href="/site" className="mb-1 block rounded-2xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-100">
+    Bauleitungs-Copilot
+  </Link>
+  <Link href="/billing" className="mb-1 block rounded-2xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-100">
+    Billing
+  </Link>
+  <Link href="/admin" className="mb-1 block rounded-2xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-100">
+    Admin
+  </Link>
+</nav>
       </aside>
       <main className="min-w-0 flex-1 p-4 md:p-6">
         <div className="mb-6 flex items-center justify-between rounded-[24px] border border-slate-200 bg-white px-6 py-4 shadow-soft">
