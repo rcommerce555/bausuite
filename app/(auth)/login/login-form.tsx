@@ -1,12 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase/browser';
 
 export function LoginForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [email, setEmail] = useState('demo@baufirma.de');
   const [password, setPassword] = useState('12345678');
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +23,7 @@ export function LoginForm() {
       return;
     }
     router.push('/dashboard' as any);
-router.refresh();
+    router.refresh();
   }
 
   return (
