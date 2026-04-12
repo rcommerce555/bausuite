@@ -1,56 +1,64 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 type AnalysisResult = {
-  documentType: string;
+  priority: 'Hoch' | 'Mittel' | 'Niedrig';
   summary: string;
-  risks: string[];
-  missingInfo: string[];
-  recommendation: string;
-  priority: 'Niedrig' | 'Mittel' | 'Hoch' | 'Sofort';
+  actions_today: string[];
+  decision_required: string;
+  impact_if_no_action: {
+    time: string;
+    cost: string;
+    chain_reaction: string;
+  };
+  critical_missing: string[];
 };
 
 function fallbackAnalysis(text: string): AnalysisResult {
   const lower = text.toLowerCase();
 
-  const risks: string[] = [];
-  const missingInfo: string[] = [];
+  const actions: string[] = [];
+  const missing: string[] = [];
 
-  if (lower.includes('verzug') || lower.includes('verschoben')) {
-    risks.push('Möglicher Terminverzug');
+  if (lower.includes('freigabe')) {
+    actions.push('Freigabe heute verbindlich mit zuständiger Stelle klären');
+    missing.push('Verbindlicher Freigabetermin fehlt');
   }
-  if (lower.includes('freigabe fehlt') || lower.includes('freigabe')) {
-    risks.push('Freigabeabhängigkeit kann Folgegewerke blockieren');
-    missingInfo.push('Verbindlicher Freigabetermin fehlt');
+
+  if (lower.includes('lieferant') || lower.includes('lieferung') || lower.includes('stahl')) {
+    actions.push('Lieferant heute anrufen und belastbaren Liefertermin schriftlich bestätigen lassen');
+    missing.push('Bestätigter Lieferstatus fehlt');
   }
-  if (lower.includes('lieferung') || lower.includes('lieferant')) {
-    risks.push('Lieferketten- oder Materialrisiko');
-    missingInfo.push('Bestätigter Lieferstatus fehlt');
+
+  if (lower.includes('betonage') || lower.includes('verschoben') || lower.includes('verzug')) {
+    actions.push('Betonagefenster neu festlegen und betroffene Folgegewerke sofort informieren');
   }
-  if (lower.includes('kollision') || lower.includes('durchbruch')) {
-    risks.push('Planungskollision / Abstimmungsfehler');
-  }
-  if (lower.includes('kran') || lower.includes('wartung')) {
-    risks.push('Geräteverfügbarkeit gefährdet Ablauf');
-    missingInfo.push('Ersatzgerät oder Wartungsfenster nicht geklärt');
+
+  if (lower.includes('bauherr') || lower.includes('terminplan')) {
+    actions.push('Aktualisierten Terminplan heute erstellen und an den Bauherrn senden');
   }
 
   const priority: AnalysisResult['priority'] =
-    risks.length >= 3 ? 'Sofort' :
-    risks.length === 2 ? 'Hoch' :
-    risks.length === 1 ? 'Mittel' :
+    actions.length >= 3 ? 'Hoch' :
+    actions.length === 2 ? 'Mittel' :
     'Niedrig';
 
   return {
-    documentType: 'Bau-Dokument',
-    summary:
-      'Das Dokument wurde automatisch voranalysiert. Es enthält operative Hinweise und potenzielle Risiken, die priorisiert bewertet werden sollten.',
-    risks: risks.length ? risks : ['Keine eindeutigen Hochrisiken automatisch erkannt'],
-    missingInfo: missingInfo.length ? missingInfo : ['Keine klaren Informationslücken automatisch erkannt'],
-    recommendation:
-      priority === 'Sofort' || priority === 'Hoch'
-        ? 'Heute noch mit Bauleitung/Projektleitung abstimmen und offene Punkte verbindlich klären.'
-        : 'Dokument prüfen, offene Punkte bestätigen und Maßnahmen bei Bedarf anstoßen.',
     priority,
+    summary:
+      'Die Baustelle hat ein akutes Freigabe- und Lieferproblem. Ohne sofortige Klärung drohen Terminverschiebung und Störungen im Bauablauf.',
+    actions_today: actions.length
+      ? actions
+      : ['Dokument heute operativ bewerten und Verantwortlichen fest zuweisen'],
+    decision_required:
+      'Entscheidung: Termin verschieben oder Freigabe- und Materialproblem heute verbindlich lösen.',
+    impact_if_no_action: {
+      time: '+1 bis +2 Tage Verzögerung',
+      cost: 'Mehrkosten durch Stillstand, Umplanung und Nachlauf',
+      chain_reaction: 'Folgegewerke und Terminplan werden blockiert',
+    },
+    critical_missing: missing.length
+      ? missing
+      : ['Keine eindeutig kritischen Informationslücken erkannt'],
   };
 }
 
@@ -76,22 +84,38 @@ export async function POST(req: NextRequest) {
     }
 
     const prompt = `
-Analysiere folgendes Bau-Dokument.
-Antworte ausschließlich als gültiges JSON mit exakt dieser Struktur:
+Du bist ein erfahrener Bauleiter auf einer laufenden Baustelle unter Zeit- und Kostendruck.
+
+Deine Aufgabe:
+Analysiere das Dokument und gib KEINE allgemeine Zusammenfassung, sondern eine operative Entscheidungsgrundlage.
+
+WICHTIG:
+- Denke wie ein Bauleiter, nicht wie ein Analyst
+- Schreibe konkret, knapp, umsetzbar
+- Keine Floskeln wie "abstimmen" oder "prüfen"
+- Jede Aussage muss eine Handlung oder Konsequenz enthalten
+
+Gib die Antwort ausschließlich als gültiges JSON mit exakt dieser Struktur zurück:
 
 {
-  "documentType": "string",
-  "summary": "string",
-  "risks": ["string"],
-  "missingInfo": ["string"],
-  "recommendation": "string",
-  "priority": "Niedrig | Mittel | Hoch | Sofort"
+  "priority": "Hoch | Mittel | Niedrig",
+  "summary": "1-2 Sätze: Was ist das Problem in der Realität?",
+  "actions_today": [
+    "Konkrete Maßnahme HEUTE inkl. wer handeln muss",
+    "Nächste zwingende Maßnahme",
+    "Dritte Maßnahme falls nötig"
+  ],
+  "decision_required": "Welche Entscheidung jetzt getroffen werden muss",
+  "impact_if_no_action": {
+    "time": "Konkrete Verzögerung",
+    "cost": "Konkretes Kostenrisiko",
+    "chain_reaction": "Welche Folgegewerke blockiert werden"
+  },
+  "critical_missing": [
+    "Fehlende Info 1",
+    "Fehlende Info 2"
+  ]
 }
-
-Regeln:
-- kurz und konkret
-- keine Erklärtexte außerhalb des JSON
-- Fokus auf Risiko, Zeitverlust, Koordinationsprobleme, Nachtragsrisiko, Freigaben, Material, Geräte, Informationslücken
 
 Dokument:
 ${text}
@@ -100,7 +124,7 @@ ${text}
     const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -122,9 +146,12 @@ ${text}
     }
 
     const data = await response.json();
+
     const outputText =
       data.output_text ||
-      data.output?.map((x: any) => x?.content?.map((c: any) => c?.text).join('')).join('') ||
+      data.output?.map((x: any) =>
+        x?.content?.map((c: any) => c?.text || '').join('')
+      ).join('') ||
       '';
 
     let parsed: AnalysisResult;
