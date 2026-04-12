@@ -48,10 +48,15 @@ export async function saveDocumentAnalysis(input: {
       project_id: input.projectId ?? null,
       title: input.title,
       file_path: input.filePath ?? null,
-      doc_type: input.analysis.docType,
+      doc_type: 'Bau-Dokument',
       content_text: input.contentText,
       ai_summary: input.analysis.summary,
-      risk_score: input.analysis.riskScore,
+      risk_score:
+  input.analysis.priority === 'Hoch'
+    ? 85
+    : input.analysis.priority === 'Mittel'
+    ? 55
+    : 25,
       created_by: input.userId,
     })
     .select('*')
