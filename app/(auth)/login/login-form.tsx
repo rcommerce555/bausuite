@@ -23,9 +23,8 @@ export function LoginForm() {
       setError(error.message);
       return;
     }
-    const nextUrl = searchParams.get('next') ?? '/dashboard';
-router.push(nextUrl as any);
-    router.refresh();
+    router.push('/dashboard' as any);
+router.refresh();
   }
 
   return (
