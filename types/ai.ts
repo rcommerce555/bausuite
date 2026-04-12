@@ -1,10 +1,15 @@
 export type DocumentAnalysis = {
-  docType: string;
+export type DocumentAnalysis = {
+  priority: 'Hoch' | 'Mittel' | 'Niedrig';
   summary: string;
-  riskScore: number;
-  risks: string[];
-  actions: string[];
-  entities: string[];
+  actions_today: string[];
+  decision_required: string;
+  impact_if_no_action: {
+    time: string;
+    cost: string;
+    chain_reaction: string;
+  };
+  critical_missing: string[];
 };
 
 export type SiteAnalysis = {
