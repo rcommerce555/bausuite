@@ -3,20 +3,23 @@
 import { useState } from 'react';
 
 type AnalysisResult = {
-  documentType: string;
+  priority: 'Niedrig' | 'Mittel' | 'Hoch';
   summary: string;
-  risks: string[];
-  missingInfo: string[];
-  recommendation: string;
-  priority: 'Niedrig' | 'Mittel' | 'Hoch' | 'Sofort';
+  actions_today: string[];
+  decision_required: string;
+  impact_if_no_action: {
+    time: string;
+    cost: string;
+    chain_reaction: string;
+  };
+  critical_missing: string[];
 };
 
 function PriorityBadge({ priority }: { priority: AnalysisResult['priority'] }) {
   const styles = {
     Niedrig: 'bg-slate-100 text-slate-700',
     Mittel: 'bg-amber-100 text-amber-800',
-    Hoch: 'bg-orange-100 text-orange-800',
-    Sofort: 'bg-red-100 text-red-800',
+    Hoch: 'bg-red-100 text-red-800',
   };
 
   return (
@@ -27,12 +30,13 @@ function PriorityBadge({ priority }: { priority: AnalysisResult['priority'] }) {
 }
 
 export default function DocumentsPage() {
-  const [text, setText] = useState(`Baubesprechung Rohbau Abschnitt B
+  const [text, setText] = useState(`Baubesprechung Rohbau Abschnitt B:
 
-- Betonage Achse 3/4 auf Mittwoch verschoben, da Freigabe Bewehrung fehlt.
-- Material Lieferung Bewehrungsstahl laut Lieferant mit 1 Tag Verzug.
-- Kran 2 benötigt Wartung.
-- Bauherr fordert aktualisierten Terminplan bis Freitag.`);
+- Freigabe der Bewehrung liegt noch nicht vor
+- Betonage von Achse 3/4 kann morgen nicht starten
+- Lieferant meldet Verzug beim Bewehrungsstahl von 1–2 Tagen
+- Bauherr verlangt bis heute 17:00 einen aktualisierten Terminplan
+- Folgegewerk Schalung ist bereits disponiert`);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [source, setSource] = useState<string | null>(null);
@@ -70,7 +74,7 @@ export default function DocumentsPage() {
       <div className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-soft">
         <h1 className="text-2xl font-semibold text-slate-900">Dokumenten-Analyse</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Lade Text aus LV, Protokoll, Mail oder Vertragsauszug ein und erhalte in Sekunden eine priorisierte Bewertung.
+          Lade Text aus LV, Protokoll, Mail oder Vertragsauszug ein und erhalte eine operative Entscheidungsgrundlage.
         </p>
 
         <textarea
@@ -89,9 +93,7 @@ export default function DocumentsPage() {
             {loading ? 'Analysiere...' : 'Dokument analysieren'}
           </button>
 
-          {source ? (
-            <span className="text-sm text-slate-500">Quelle: {source}</span>
-          ) : null}
+          {source ? <span className="text-sm text-slate-500">Quelle: {source}</span> : null}
         </div>
 
         {error ? (
@@ -103,29 +105,47 @@ export default function DocumentsPage() {
 
       {result ? (
         <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-soft">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-xl font-semibold text-slate-900">{result.documentType}</h2>
-              <PriorityBadge priority={result.priority} />
+          <div className="space-y-6">
+            <div className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-soft">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-xl font-semibold text-slate-900">Operative Lage</h2>
+                <PriorityBadge priority={result.priority} />
+              </div>
+
+              <div className="mt-5">
+                <h3 className="text-sm font-semibold text-slate-900">Was gerade passiert</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{result.summary}</p>
+              </div>
             </div>
 
-            <div className="mt-5">
-              <h3 className="text-sm font-semibold text-slate-900">Kurzfassung</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{result.summary}</p>
+            <div className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-soft">
+              <h3 className="text-sm font-semibold text-slate-900">Entscheidung, die jetzt getroffen werden muss</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">{result.decision_required}</p>
             </div>
 
-            <div className="mt-6">
-              <h3 className="text-sm font-semibold text-slate-900">Empfohlener nächster Schritt</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{result.recommendation}</p>
+            <div className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-soft">
+              <h3 className="text-sm font-semibold text-slate-900">Wenn du jetzt nichts tust</h3>
+
+              <div className="mt-4 space-y-3">
+                <div className="rounded-xl bg-red-50 px-3 py-3 text-sm text-red-800">
+                  <span className="font-semibold">Zeit:</span> {result.impact_if_no_action.time}
+                </div>
+                <div className="rounded-xl bg-orange-50 px-3 py-3 text-sm text-orange-800">
+                  <span className="font-semibold">Kosten:</span> {result.impact_if_no_action.cost}
+                </div>
+                <div className="rounded-xl bg-amber-50 px-3 py-3 text-sm text-amber-800">
+                  <span className="font-semibold">Kettenreaktion:</span> {result.impact_if_no_action.chain_reaction}
+                </div>
+              </div>
             </div>
           </div>
 
           <div className="space-y-6">
             <div className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-soft">
-              <h3 className="text-sm font-semibold text-slate-900">Risiken</h3>
+              <h3 className="text-sm font-semibold text-slate-900">Heute konkret tun</h3>
               <ul className="mt-3 space-y-2">
-                {result.risks.map((item, index) => (
-                  <li key={index} className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-800">
+                {result.actions_today.map((item, index) => (
+                  <li key={index} className="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-800">
                     {item}
                   </li>
                 ))}
@@ -133,9 +153,9 @@ export default function DocumentsPage() {
             </div>
 
             <div className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-soft">
-              <h3 className="text-sm font-semibold text-slate-900">Fehlende Informationen</h3>
+              <h3 className="text-sm font-semibold text-slate-900">Was dir noch fehlt</h3>
               <ul className="mt-3 space-y-2">
-                {result.missingInfo.map((item, index) => (
+                {result.critical_missing.map((item, index) => (
                   <li key={index} className="rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-800">
                     {item}
                   </li>
