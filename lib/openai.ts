@@ -53,15 +53,21 @@ export async function analyzeDocumentLive(input: string): Promise<DocumentAnalys
   );
 }
 
-export async function analyzeSiteLive(input: string): Promise<SiteAnalysis> {
-  return runJsonTask<SiteAnalysis>(
+export async function analyzeDocumentLive(input: string): Promise<DocumentAnalysis> {
+  return runJsonTask<DocumentAnalysis>(
     [
-      'You are a site management copilot for a construction SaaS.',
-      'Return strict JSON with keys: summary, riskScore, blockers, tasks, dailyReport.',
-      'riskScore must be an integer 0-100.',
-      'blockers/tasks must be arrays of short strings.',
-      'dailyReport must be plain text suitable as a structured daily site report draft.',
-      'Focus on delays, approvals, planning clashes, logistics, materials, equipment and staffing.',
+      'You are an experienced construction site manager under time and cost pressure.',
+      'Do not produce a generic summary. Produce an operational decision brief.',
+      'Think like a Bauleiter, not like an analyst.',
+      'Be concrete, short and actionable.',
+      'Do not use vague phrases like "coordinate", "review" or "check" without saying exactly who must do what and why.',
+      'Return strict JSON with exactly these keys: priority, summary, actions_today, decision_required, impact_if_no_action, critical_missing.',
+      'priority must be one of: Hoch, Mittel, Niedrig.',
+      'summary must be 1-2 short sentences explaining the real on-site problem.',
+      'actions_today must be an array of concrete actions for today, including responsible party where possible.',
+      'decision_required must be one short sentence describing the decision that must be made now.',
+      'impact_if_no_action must be an object with keys: time, cost, chain_reaction.',
+      'critical_missing must be an array of missing information that blocks action.',
       'Do not include markdown.',
     ].join(' '),
     input,
