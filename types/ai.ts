@@ -1,5 +1,4 @@
 export type DocumentAnalysis = {
-  export type DocumentAnalysis = {
   priority: 'Hoch' | 'Mittel' | 'Niedrig';
   summary: string;
   actions_today: string[];
@@ -18,5 +17,4 @@ export type SiteAnalysis = {
   blockers: string[];
   tasks: string[];
   dailyReport: string;
-  escalationNeeded?: boolean;
 };
