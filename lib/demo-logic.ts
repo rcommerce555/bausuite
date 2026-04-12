@@ -2,49 +2,77 @@ import type { DocumentAnalysis, SiteAnalysis } from '@/types/ai';
 
 export function analyzeDocumentLocal(text: string): DocumentAnalysis {
   const lower = text.toLowerCase();
+
+  const missing: string[] = [];
+  const actions: string[] = [];
+
+  if (lower.includes('freigabe')) {
+    missing.push('Verbindlicher Freigabetermin fehlt');
+    actions.push('Freigabe heute bis 16:00 verbindlich einholen');
+  }
+
+  if (lower.includes('lieferant') || lower.includes('lieferung') || lower.includes('stahl')) {
+    missing.push('Bestätigter Lieferstatus fehlt');
+    actions.push('Lieferant heute anrufen und bestätigten Termin schriftlich sichern');
+  }
+
+  if (lower.includes('betonage') || lower.includes('verschiebt')) {
+    actions.push('Betonage-Fenster neu bewerten und Folgegewerke informieren');
+  }
+
+  if (lower.includes('bauherr') || lower.includes('terminplan')) {
+    actions.push('Neuen Terminplan aufsetzen und Bauherrn heute abstimmen');
+  }
+
+  const priority: DocumentAnalysis['priority'] =
+    actions.length >= 3 ? 'Hoch' :
+    actions.length === 2 ? 'Mittel' :
+    'Niedrig';
+
   return {
-    docType: lower.includes('leistungsverzeichnis') ? 'Leistungsverzeichnis' : 'Projektunterlage',
+    priority,
     summary:
-      'Das Dokument enthält leistungsrelevante Hinweise, Freigabeabhängigkeiten und mögliche Termin- oder Nachtragsrisiken.',
-    riskScore: Math.min(95, 25 + ['prüfstatik', 'freigabe', 'offene punkte', 'baugrund', 'eingeschränkt'].filter((k) => lower.includes(k)).length * 14),
-    risks: [
-      lower.includes('prüfstatik') && 'Prüfstatik fehlt oder wird nachgereicht',
-      lower.includes('freigabe') && 'Freigaben sind vor Ausführung kritisch',
-      lower.includes('offene punkte') && 'Offene Punkte blockieren Vergabe oder Ausführung',
-      lower.includes('baugrund') && 'Baugrund-/Freigabethema erzeugt Termin- und Claim-Risiko',
-      lower.includes('eingeschränkt') && 'Baustellenlogistik ist eingeschränkt',
-    ].filter(Boolean) as string[],
-    actions: [
-      'Rückfrage zur Prüfstatik formulieren',
-      'Freigabeliste für Schalpläne und Ausführungsunterlagen anlegen',
-      'Baustellenlogistik separat bewerten',
-      'Baugrund- und Entsorgungsthema vertraglich absichern',
-    ],
-    entities: ['Bodenplatte', 'Fundamente', 'Schalung', 'Bewehrung', 'Abschlagszahlungen'],
+      'Die Baustelle hat ein akutes Freigabe- und Lieferproblem. Ohne sofortige Klärung drohen Verzögerung und Blockade nachfolgender Arbeiten.',
+    actions_today: actions.length
+      ? actions
+      : ['Dokument heute operativ bewerten und Verantwortliche fest zuweisen'],
+    decision_required:
+      'Entscheidung: Betonage verschieben oder Material-/Freigabeproblem heute verbindlich lösen.',
+    impact_if_no_action: {
+      time: '+1 bis +2 Tage Verzögerung',
+      cost: 'Mehrkosten durch Stillstand, Umplanung und Nachlauf',
+      chain_reaction: 'Folgegewerke und Terminplan werden blockiert',
+    },
+    critical_missing: missing.length
+      ? missing
+      : ['Keine eindeutig fehlenden Kerninformationen erkannt'],
   };
 }
 
 export function analyzeSiteLocal(text: string): SiteAnalysis {
   const lower = text.toLowerCase();
+
   const blockers = [
-    lower.includes('freigabe') && 'Bewehrungsfreigabe fehlt vor Betonage',
-    lower.includes('kollision') && 'Planungskollision zwischen Elektro und Durchbrüchen',
-    lower.includes('krank') && 'Personalausfall beeinflusst Tagesleistung',
-    lower.includes('wartung') && 'Geräterisiko: Kran nur eingeschränkt verfügbar',
-    lower.includes('verzug') && 'Materialverzug bei Bewehrungsstahl',
+    lower.includes('freigabe') && 'Freigabeproblem blockiert Ausführung',
+    lower.includes('kollision') && 'Planungskollision zwischen Gewerken',
+    lower.includes('krank') && 'Personalausfall beeinflusst Leistung',
+    lower.includes('wartung') && 'Geräterisiko durch Wartung/Ausfall',
+    lower.includes('verzug') && 'Material- oder Terminverzug',
   ].filter(Boolean) as string[];
+
+  const tasks = [
+    'Kritische Punkte heute im Jour fixe eskalieren',
+    'Verantwortlichkeiten verbindlich festlegen',
+    'Auswirkungen auf Terminplan sofort nachführen',
+  ];
 
   return {
     summary:
-      'Die Notizen zeigen Freigabeprobleme, Koordinationskonflikte, Geräteverfügbarkeit und Materialverzug. Das eignet sich für Maßnahmen- und Eskalationslogik.',
-    riskScore: Math.min(96, 35 + blockers.length * 10),
-    blockers,
-    tasks: [
-      'Freigabe Bewehrung bis 16:00 klären',
-      'Planstand B-17 mit Elektro/TGA bereinigen',
-      'Kranwartung und Ersatzfenster disponieren',
-      'Terminplan-Update an Bauherrn senden',
-    ],
-    dailyReport: `Tagesbericht\n\nLeistungsstand:\n- Betonage verschoben\n- Freigaben und Materialversorgung kritisch\n\nRisikopunkte:\n- Freigabe offen\n- Planungskollision\n- Kranverfügbarkeit eingeschränkt\n- Material im Verzug`,
+      'Die Baustelle zeigt mehrere operative Störungen, die zeitnah koordiniert werden müssen.',
+    riskScore: Math.min(95, 35 + blockers.length * 12),
+    blockers: blockers.length ? blockers : ['Keine eindeutigen Blocker erkannt'],
+    tasks,
+    dailyReport:
+      'Tagesbericht: Kritische Punkte wurden identifiziert, Verantwortlichkeiten sind nachzuführen und Auswirkungen auf den Terminplan zu bewerten.',
   };
 }
