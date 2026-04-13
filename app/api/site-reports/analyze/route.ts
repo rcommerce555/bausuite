@@ -20,30 +20,38 @@ function fallbackSiteAnalysis(text: string): SitePriorityResult {
   let escalation = 'Heute Eskalation an Projektleitung oder technische Freigabestelle notwendig';
 
   if (lower.includes('freigabe')) {
-    focus = 'Freigabeproblem zuerst lösen, weil ohne Freigabe alle Folgeaktionen wirkungslos sind';
-    top.push('Freigabe sofort mit zuständiger Stelle eskalieren');
+    focus = 'Freigabeproblem zuerst lösen, da ohne Freigabe alle Folgearbeiten blockiert sind';
+    top.push('Freigabe sofort mit zuständiger Stelle klären und Eskalation einleiten');
   }
 
   if (lower.includes('lieferant') || lower.includes('verzug') || lower.includes('stahl')) {
-    top.push('Lieferant sofort kontaktieren und realistischen Termin verbindlich bestätigen lassen');
+    top.push('Lieferant sofort kontaktieren und verbindlichen Liefertermin sichern');
   }
 
   if (lower.includes('kran') || lower.includes('wartung')) {
-    top.push('Geräteverfügbarkeit jetzt absichern und Ersatzlösung festlegen');
+    top.push('Geräteverfügbarkeit sofort klären und Ersatzlösung organisieren');
     immediateCostDriver = 'Geräteausfall und stehende Kolonne verursachen sofort Kosten';
   }
 
+  if (lower.includes('beton') || lower.includes('betonage')) {
+    immediateCostDriver = 'Bestellter Beton und wartende Kolonne verursachen sofort Kosten';
+    top.push('Betonlieferung prüfen und ggf. sofort verschieben oder stoppen');
+  }
+
   if (lower.includes('bauherr') || lower.includes('terminplan')) {
-    top.push('Terminplan noch heute aktualisieren und Bauherrn aktiv informieren');
+    top.push('Terminplan heute aktualisieren und Bauherrn aktiv informieren');
   }
 
   return {
     today_focus: focus,
-    top_priority: top.length ? top : ['Heute größte operative Störung identifizieren und direkte Maßnahmen auslösen'],
+    top_priority: top.length
+      ? top
+      : ['Heute größte operative Störung identifizieren und direkt Maßnahmen auslösen'],
     biggest_risk: biggestRisk,
     immediate_cost_driver: immediateCostDriver,
-    time_loss_estimate: '+1 bis +3 Tage',
-    recommended_route: 'Zuerst Hauptblocker lösen, dann Liefer-/Gerätefrage absichern, dann Kommunikation nachziehen',
+    time_loss_estimate: '+1 bis +3 Tage Verzögerung',
+    recommended_route:
+      'Zuerst Hauptblocker lösen, dann Ressourcen absichern, dann Kommunikation durchführen',
     escalation_today: escalation,
   };
 }
@@ -62,10 +70,11 @@ export async function POST(req: NextRequest) {
 
     const apiKey = process.env.OPENAI_API_KEY;
 
+    // 👉 FALLBACK wenn kein Key
     if (!apiKey) {
       return NextResponse.json({
         source: 'fallback',
-        result: fallbackAnalysis(text),
+        result: fallbackSiteAnalysis(text),
       });
     }
 
@@ -73,13 +82,14 @@ export async function POST(req: NextRequest) {
 Du bist ein erfahrener Bauleiter mit mehreren parallelen Baustellen.
 
 Deine Aufgabe:
-Priorisiere die Tageslage operativ und brutal klar.
+Priorisiere die Tageslage operativ, direkt und ohne Umschweife.
 
-WICHTIG:
-- Keine allgemeinen Aussagen
+Regeln:
 - Keine Floskeln wie "abstimmen" oder "prüfen"
-- Antworte so, dass ein Bauleiter sofort weiß, wo er hin muss und was zuerst zu tun ist
-- Fokus auf Stillstand, Folgegewerke, Material, Freigaben, Geräte, Terminplan, Subunternehmer
+- Immer konkret sagen, wer was tun muss
+- Fokus auf Stillstand, Kosten, Folgegewerke und Zeitdruck
+- Identifiziere, was JETZT Geld kostet (Kolonne, Beton, Geräte, Lieferanten)
+- Erzwinge klare Prioritäten
 
 Gib ausschließlich gültiges JSON mit exakt dieser Struktur zurück:
 
@@ -91,8 +101,10 @@ Gib ausschließlich gültiges JSON mit exakt dieser Struktur zurück:
     "Konkrete Priorität 3"
   ],
   "biggest_risk": "Größtes operatives Risiko",
-  "time_loss_estimate": "Zeitverlust in realistischer Form",
-  "recommended_route": "Empfohlene Reihenfolge oder Route für heute"
+  "immediate_cost_driver": "Was verursacht jetzt sofort Kosten?",
+  "time_loss_estimate": "Realistische Zeitverzögerung",
+  "recommended_route": "Reihenfolge der Schritte für heute",
+  "escalation_today": "Was muss heute eskaliert werden und an wen?"
 }
 
 Tageslage:
@@ -102,7 +114,7 @@ ${text}
     const response = await fetch('https://api.openai.com/v1/responses', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: \`Bearer \${apiKey}\`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -140,7 +152,7 @@ ${text}
       return NextResponse.json({
         source: 'fallback-after-parse-fail',
         raw: outputText,
-        result: fallbackAnalysis(text),
+        result: fallbackSiteAnalysis(text),
       });
     }
 
