@@ -3,25 +3,30 @@ import type { DocumentAnalysis, SiteAnalysis } from '@/types/ai';
 export function analyzeDocumentLocal(text: string): DocumentAnalysis {
   const lower = text.toLowerCase();
 
-  const missing: string[] = [];
   const actions: string[] = [];
+  const missing: string[] = [];
+
+  let main_blocker = 'Operativer Engpass unklar';
+  let root_cause = 'Unklare Ausgangslage';
 
   if (lower.includes('freigabe')) {
+    main_blocker = 'Fehlende Freigabe blockiert die Ausführung';
+    root_cause = 'Erforderliche Freigabe liegt nicht vor';
+    actions.push('Freigabe heute verbindlich mit zuständiger Stelle klären');
     missing.push('Verbindlicher Freigabetermin fehlt');
-    actions.push('Freigabe heute bis 16:00 verbindlich einholen');
   }
 
-  if (lower.includes('lieferant') || lower.includes('lieferung') || lower.includes('stahl')) {
+  if (lower.includes('lieferant') || lower.includes('lieferung') || lower.includes('stahl') || lower.includes('verzug')) {
+    actions.push('Lieferant heute anrufen und belastbaren Liefertermin schriftlich bestätigen lassen');
     missing.push('Bestätigter Lieferstatus fehlt');
-    actions.push('Lieferant heute anrufen und bestätigten Termin schriftlich sichern');
   }
 
-  if (lower.includes('betonage') || lower.includes('verschiebt')) {
-    actions.push('Betonage-Fenster neu bewerten und Folgegewerke informieren');
+  if (lower.includes('beton') || lower.includes('betonage') || lower.includes('verschoben')) {
+    actions.push('Betonagefenster neu festlegen und betroffene Folgegewerke sofort informieren');
   }
 
   if (lower.includes('bauherr') || lower.includes('terminplan')) {
-    actions.push('Neuen Terminplan aufsetzen und Bauherrn heute abstimmen');
+    actions.push('Aktualisierten Terminplan heute erstellen und an den Bauherrn senden');
   }
 
   const priority: DocumentAnalysis['priority'] =
@@ -32,12 +37,14 @@ export function analyzeDocumentLocal(text: string): DocumentAnalysis {
   return {
     priority,
     summary:
-      'Die Baustelle hat ein akutes Freigabe- und Lieferproblem. Ohne sofortige Klärung drohen Verzögerung und Blockade nachfolgender Arbeiten.',
+      'Die Baustelle hat ein akutes Freigabe- und Lieferproblem. Ohne sofortige Klärung drohen Terminverschiebung und Störungen im Bauablauf.',
+    main_blocker,
+    root_cause,
     actions_today: actions.length
       ? actions
-      : ['Dokument heute operativ bewerten und Verantwortliche fest zuweisen'],
+      : ['Heute Hauptproblem identifizieren und Verantwortlichen verbindlich festlegen'],
     decision_required:
-      'Entscheidung: Betonage verschieben oder Material-/Freigabeproblem heute verbindlich lösen.',
+      'Entscheidung: Termin aktiv verschieben oder Freigabe- und Materialproblem heute verbindlich lösen.',
     impact_if_no_action: {
       time: '+1 bis +2 Tage Verzögerung',
       cost: 'Mehrkosten durch Stillstand, Umplanung und Nachlauf',
@@ -45,7 +52,7 @@ export function analyzeDocumentLocal(text: string): DocumentAnalysis {
     },
     critical_missing: missing.length
       ? missing
-      : ['Keine eindeutig fehlenden Kerninformationen erkannt'],
+      : ['Keine klar benannte Schlüsselinformation vorhanden'],
   };
 }
 
