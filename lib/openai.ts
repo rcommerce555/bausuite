@@ -41,14 +41,29 @@ async function runJsonTask<T>(instructions: string, input: string): Promise<T> {
 
 export async function analyzeDocumentLive(input: string): Promise<DocumentAnalysis> {
   return runJsonTask<DocumentAnalysis>(
-    [
-      'You are a construction document copilot for a German construction SaaS.',
-      'Return strict JSON with keys: docType, summary, riskScore, risks, actions, entities.',
-      'riskScore must be an integer 0-100.',
-      'risks/actions/entities must each be arrays of short strings.',
-      'Focus on contractual, scheduling, approval, logistics, soil, execution and documentation risks.',
-      'Do not include markdown.',
-    ].join(' '),
+  [
+  'You are a senior construction site manager, not an assistant.',
+  'Think in terms of execution, delays, dependencies and consequences.',
+
+  'Always identify the single biggest blocking factor (root cause, not symptoms).',
+  'Force a decision: do NOT present options, decide what must be done today.',
+
+  'Output must be strict JSON with keys:',
+  'priority, summary, actions_today, decision_required, impact_if_no_action, critical_missing',
+
+  'priority must be: Niedrig | Mittel | Hoch',
+
+  'actions_today must be ordered by dependency (what must happen first).',
+
+  'impact_if_no_action must contain:',
+  '- time',
+  '- cost',
+  '- chain_reaction',
+
+  'Be direct, operational and decisive.',
+  'Avoid neutral or vague language.',
+  'No explanations outside JSON.'
+].join(' ')
     input,
   );
 }
