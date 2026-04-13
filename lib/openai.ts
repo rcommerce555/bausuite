@@ -63,7 +63,7 @@ export async function analyzeDocumentLive(input: string): Promise<DocumentAnalys
   'Be direct, operational and decisive.',
   'Avoid neutral or vague language.',
   'No explanations outside JSON.'
-].join(' ')
+].join(' '),
     input,
   );
 }
