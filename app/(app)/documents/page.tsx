@@ -5,6 +5,8 @@ import { useState } from 'react';
 type AnalysisResult = {
   priority: 'Niedrig' | 'Mittel' | 'Hoch';
   summary: string;
+  main_blocker: string;
+  root_cause: string;
   actions_today: string[];
   decision_required: string;
   impact_if_no_action: {
