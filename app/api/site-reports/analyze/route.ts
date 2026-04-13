@@ -90,6 +90,11 @@ Regeln:
 - Fokus auf Stillstand, Kosten, Folgegewerke und Zeitdruck
 - Identifiziere, was JETZT Geld kostet (Kolonne, Beton, Geräte, Lieferanten)
 - Erzwinge klare Prioritäten
+- Identifiziere den EINEN Hauptblocker (keine Liste)
+- Wenn ein Blocker die Ausführung verhindert, MUSS er als today_focus genannt werden
+- Prioritäten dürfen sich nur auf reale Blocker beziehen, nicht auf allgemeine Maßnahmen
+- Wenn Ressourcen bereits vor Ort sind, bewerte dies als sofortigen Kostenschaden
+- Erzwinge eine klare Entscheidung (z.B. stoppen vs. weiterarbeiten)
 
 Gib ausschließlich gültiges JSON mit exakt dieser Struktur zurück:
 
