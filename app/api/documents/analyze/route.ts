@@ -13,52 +13,54 @@ type AnalysisResult = {
   critical_missing: string[];
 };
 
-function fallbackAnalysis(text: string): AnalysisResult {
+function fallbackAnalysis(text: string) {
   const lower = text.toLowerCase();
 
   const actions: string[] = [];
   const missing: string[] = [];
 
+  let main_blocker = 'Operativer Engpass unklar';
+  let root_cause = 'Unklare Ausgangslage';
+
   if (lower.includes('freigabe')) {
+    main_blocker = 'Fehlende Freigabe blockiert die Ausführung';
+    root_cause = 'Erforderliche Freigabe liegt nicht vor';
+
     actions.push('Freigabe heute verbindlich mit zuständiger Stelle klären');
     missing.push('Verbindlicher Freigabetermin fehlt');
   }
 
-  if (lower.includes('lieferant') || lower.includes('lieferung') || lower.includes('stahl')) {
-    actions.push('Lieferant heute anrufen und belastbaren Liefertermin schriftlich bestätigen lassen');
+  if (lower.includes('lieferant') || lower.includes('verzug')) {
+    actions.push('Lieferant heute kontaktieren und Liefertermin fix bestätigen');
     missing.push('Bestätigter Lieferstatus fehlt');
   }
 
-  if (lower.includes('betonage') || lower.includes('verschoben') || lower.includes('verzug')) {
-    actions.push('Betonagefenster neu festlegen und betroffene Folgegewerke sofort informieren');
+  if (lower.includes('beton') || lower.includes('betonage')) {
+    actions.push('Betonagefenster neu festlegen und Folgegewerke informieren');
   }
 
-  if (lower.includes('bauherr') || lower.includes('terminplan')) {
-    actions.push('Aktualisierten Terminplan heute erstellen und an den Bauherrn senden');
+  if (lower.includes('terminplan') || lower.includes('bauherr')) {
+    actions.push('Terminplan heute aktualisieren und an Bauherrn senden');
   }
 
-  const priority: AnalysisResult['priority'] =
+  const priority =
     actions.length >= 3 ? 'Hoch' :
     actions.length === 2 ? 'Mittel' :
     'Niedrig';
 
   return {
     priority,
-    summary:
-      'Die Baustelle hat ein akutes Freigabe- und Lieferproblem. Ohne sofortige Klärung drohen Terminverschiebung und Störungen im Bauablauf.',
-    actions_today: actions.length
-      ? actions
-      : ['Dokument heute operativ bewerten und Verantwortlichen fest zuweisen'],
-    decision_required:
-      'Entscheidung: Termin verschieben oder Freigabe- und Materialproblem heute verbindlich lösen.',
+    summary: 'Operativer Engpass mit unmittelbarer Termin- und Kostenwirkung.',
+    main_blocker,
+    root_cause,
+    actions_today: actions.length ? actions : ['Heute Hauptproblem identifizieren und Verantwortlichen festlegen'],
+    decision_required: 'Engpass heute aktiv lösen oder Termin verbindlich verschieben.',
     impact_if_no_action: {
       time: '+1 bis +2 Tage Verzögerung',
-      cost: 'Mehrkosten durch Stillstand, Umplanung und Nachlauf',
+      cost: 'Mehrkosten durch Stillstand und Umplanung',
       chain_reaction: 'Folgegewerke und Terminplan werden blockiert',
     },
-    critical_missing: missing.length
-      ? missing
-      : ['Keine eindeutig kritischen Informationslücken erkannt'],
+    critical_missing: missing.length ? missing : ['Keine klaren Schlüsselinformationen vorhanden'],
   };
 }
 
