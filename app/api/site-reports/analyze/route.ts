@@ -8,48 +8,41 @@ type SitePriorityResult = {
   recommended_route: string;
 };
 
-function fallbackAnalysis(text: string): SitePriorityResult {
+function fallbackSiteAnalysis(text: string): SitePriorityResult {
   const lower = text.toLowerCase();
+  const top: string[] = [];
 
-  const topPriority: string[] = [];
+  let focus = 'Kritischste Baustellenstörung heute priorisieren';
+  let biggestRisk = 'Stillstand und Folgegewerke werden blockiert';
+  let immediateCostDriver = 'Bereits disponierte Ressourcen verlieren Produktivität';
+  let escalation = 'Heute Eskalation an Projektleitung oder technische Freigabestelle notwendig';
 
   if (lower.includes('freigabe')) {
-    topPriority.push('Freigabe heute sofort klären, sonst bleibt die Ausführung blockiert');
+    focus = 'Freigabeproblem zuerst lösen, weil ohne Freigabe alle Folgeaktionen wirkungslos sind';
+    top.push('Freigabe sofort mit zuständiger Stelle eskalieren');
   }
 
-  if (
-    lower.includes('lieferant') ||
-    lower.includes('lieferung') ||
-    lower.includes('verzug') ||
-    lower.includes('stahl')
-  ) {
-    topPriority.push('Lieferant heute anrufen und realistischen Liefertermin verbindlich absichern');
+  if (lower.includes('lieferant') || lower.includes('verzug') || lower.includes('stahl')) {
+    top.push('Lieferant sofort kontaktieren und realistischen Termin verbindlich bestätigen lassen');
   }
 
-  if (lower.includes('kran') || lower.includes('wartung') || lower.includes('gerät')) {
-    topPriority.push('Geräteverfügbarkeit heute prüfen und Ersatzlösung festlegen');
+  if (lower.includes('kran') || lower.includes('wartung')) {
+    top.push('Geräteverfügbarkeit jetzt absichern und Ersatzlösung festlegen');
+    immediateCostDriver = 'Geräteausfall und stehende Kolonne verursachen sofort Kosten';
   }
 
   if (lower.includes('bauherr') || lower.includes('terminplan')) {
-    topPriority.push('Terminplan aktualisieren und Bauherrn noch heute informieren');
-  }
-
-  if (lower.includes('subunternehmer')) {
-    topPriority.push('Subunternehmer-Einsatz neu takten, damit kein Leerlauf entsteht');
+    top.push('Terminplan noch heute aktualisieren und Bauherrn aktiv informieren');
   }
 
   return {
-    today_focus:
-      topPriority.length > 0
-        ? 'Baustelle mit Freigabe-, Material- und Ablaufstörung zuerst bearbeiten'
-        : 'Kritischste Baustelle mit offenem Termin- oder Ressourcenrisiko zuerst bearbeiten',
-    top_priority: topPriority.length
-      ? topPriority
-      : ['Heute die kritischsten offenen Punkte priorisieren und verbindlich zuweisen'],
-    biggest_risk: 'Stillstand und Blockade nachfolgender Gewerke',
+    today_focus: focus,
+    top_priority: top.length ? top : ['Heute größte operative Störung identifizieren und direkte Maßnahmen auslösen'],
+    biggest_risk: biggestRisk,
+    immediate_cost_driver: immediateCostDriver,
     time_loss_estimate: '+1 bis +3 Tage',
-    recommended_route:
-      'Zuerst kritische Baustelle prüfen, dann Lieferant/Freigabe klären, danach Terminplan nachziehen',
+    recommended_route: 'Zuerst Hauptblocker lösen, dann Liefer-/Gerätefrage absichern, dann Kommunikation nachziehen',
+    escalation_today: escalation,
   };
 }
 
