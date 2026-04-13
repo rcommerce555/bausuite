@@ -145,7 +145,15 @@ Die Antwort MUSS enthalten:
 - Wenn Blocker heute gelöst wird → sofort weiterarbeiten
 - Wenn Blocker nicht gelöst wird → Arbeit stoppen
 
-Formulierungen mit "oder" sind verboten.
+Die Entscheidung muss im Format sein:
+
+Wenn [Bedingung] → dann [konkrete Handlung]
+
+Beispiel:
+Wenn Freigabe heute nicht erfolgt → Betonage stoppen und neu takten
+Wenn Freigabe heute erfolgt → Betonage sofort durchführen
+
+Keine "oder"-Formulierungen erlaubt.
 
 7. Kosten konkret benennen:
 Keine abstrakten Aussagen.
