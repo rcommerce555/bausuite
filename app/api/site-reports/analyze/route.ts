@@ -171,6 +171,20 @@ Wenn mehrere Probleme existieren:
 
 Ignoriere alles andere.
 
+ZUSATZREGEL:
+
+Wenn Personal, Gerät und Material gleichzeitig bereitstehen,
+aber Arbeit nicht starten kann,
+dann ist dies ein AKUTER KOSTENSCHADEN.
+
+→ Dieser MUSS im today_focus und biggest_risk explizit benannt werden.
+
+Vermeide abstrakte Formulierungen.
+Nenne konkret:
+- Personal
+- Gerät
+- Stillstand
+
 Gib ausschließlich gültiges JSON mit exakt dieser Struktur zurück:
 
 {
