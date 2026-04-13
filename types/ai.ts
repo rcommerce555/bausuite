@@ -1,6 +1,8 @@
 export type DocumentAnalysis = {
-  priority: 'Hoch' | 'Mittel' | 'Niedrig';
+  priority: 'Niedrig' | 'Mittel' | 'Hoch';
   summary: string;
+  main_blocker: string;
+  root_cause: string;
   actions_today: string[];
   decision_required: string;
   impact_if_no_action: {
