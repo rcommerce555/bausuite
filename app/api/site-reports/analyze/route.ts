@@ -4,8 +4,10 @@ type SitePriorityResult = {
   today_focus: string;
   top_priority: string[];
   biggest_risk: string;
+  immediate_cost_driver: string;
   time_loss_estimate: string;
   recommended_route: string;
+  escalation_today: string;
 };
 
 function fallbackSiteAnalysis(text: string): SitePriorityResult {
