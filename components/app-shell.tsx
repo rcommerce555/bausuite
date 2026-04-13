@@ -27,6 +27,9 @@ export function AppShell({ title, children }: { title: string; children: React.R
   <Link href="/admin" className="mb-1 block rounded-2xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-100">
     Admin
   </Link>
+  <Link href="/tasks" className="mb-1 block rounded-2xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-100">
+  Aufgaben
+</Link>
 </nav>
       </aside>
       <main className="min-w-0 flex-1 p-4 md:p-6">
