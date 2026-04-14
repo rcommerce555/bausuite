@@ -8,6 +8,7 @@ const bodySchema = z.object({
   priority: z.enum(['niedrig', 'mittel', 'hoch']).default('mittel'),
   dueToday: z.boolean().optional().default(true),
   source: z.string().optional().default('ki'),
+  blocker: z.boolean().optional().default(false),
 });
 
 export async function POST(request: NextRequest) {
@@ -27,6 +28,7 @@ export async function POST(request: NextRequest) {
         status: 'offen',
         due_date: dueDate,
         source: body.source,
+        blocker: body.blocker,
       })
       .select('*')
       .single();
