@@ -112,6 +112,13 @@ export default function SitePage() {
               <h3 className="text-sm font-semibold text-slate-900">Top-Prioritäten heute</h3>
               <ul className="mt-3 space-y-2">
               {result.top_priority.map((item, index) => (
+          body: JSON.stringify({
+  title: item,
+  priority: 'hoch',
+  dueToday: true,
+  source: 'site-ai',
+  blocker: index === 0,
+}),
   <li key={index} className="rounded-xl bg-slate-100 px-3 py-3 text-sm text-slate-800">
     <div className="flex items-start justify-between gap-3">
       <span>{item}</span>
