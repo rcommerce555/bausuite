@@ -156,6 +156,18 @@ export default function DocumentsPage() {
               <h3 className="text-sm font-semibold text-slate-900">Heute konkret tun</h3>
               <ul className="mt-3 space-y-2">
                {result.actions_today.map((item, index) => (
+          body: JSON.stringify({
+  title: item,
+  priority:
+    result.priority === 'Hoch'
+      ? 'hoch'
+      : result.priority === 'Mittel'
+      ? 'mittel'
+      : 'niedrig',
+  dueToday: true,
+  source: 'document-ai',
+  blocker: index === 0,
+}),
   <li key={index} className="rounded-xl bg-slate-100 px-3 py-3 text-sm text-slate-800">
     <div className="flex items-start justify-between gap-3">
       <span>{item}</span>
