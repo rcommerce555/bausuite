@@ -111,14 +111,7 @@ export default function SitePage() {
             <div className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-soft">
               <h3 className="text-sm font-semibold text-slate-900">Top-Prioritäten heute</h3>
               <ul className="mt-3 space-y-2">
-              {result.top_priority.map((item, index) => (
-          body: JSON.stringify({
-  title: item,
-  priority: 'hoch',
-  dueToday: true,
-  source: 'site-ai',
-  blocker: index === 0,
-}),
+             {result.top_priority.map((item, index) => (
   <li key={index} className="rounded-xl bg-slate-100 px-3 py-3 text-sm text-slate-800">
     <div className="flex items-start justify-between gap-3">
       <span>{item}</span>
@@ -134,11 +127,11 @@ export default function SitePage() {
                 priority: 'hoch',
                 dueToday: true,
                 source: 'site-ai',
+                blocker: index === 0,
               }),
             });
 
             if (!res.ok) throw new Error('Fehler');
-
             alert('Aufgabe erstellt');
           } catch {
             alert('Fehler beim Erstellen');
