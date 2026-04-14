@@ -12,6 +12,9 @@ export function AppShell({ title, children }: { title: string; children: React.R
           <div className="font-semibold">Demo Nordbau GmbH</div>
         </div>
         <nav className="p-3">
+          <Link href="/tasks" className="mb-1 block rounded-2xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-100">
+  Aufgaben
+</Link>
   <Link href="/dashboard" className="mb-1 block rounded-2xl px-4 py-3 text-sm text-slate-600 hover:bg-slate-100">
     Dashboard
   </Link>
