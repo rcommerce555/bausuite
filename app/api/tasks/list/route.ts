@@ -11,6 +11,7 @@ export async function GET() {
       .from('tasks')
       .select('*')
       .eq('tenant_id', ctx.tenantId)
+      .order('blocker', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(50);
 
