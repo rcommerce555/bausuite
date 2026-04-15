@@ -7,13 +7,14 @@ export async function GET() {
     const ctx = await requireTenantContext();
     const supabase = getSupabaseAdminClient();
 
-    const { data, error } = await supabase
-      .from('tasks')
-      .select('*')
-      .eq('tenant_id', ctx.tenantId)
-      .order('blocker', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(50);
+  const { data, error } = await supabase
+  .from('tasks')
+  .select('*')
+  .eq('tenant_id', ctx.tenantId)
+  .order('done', { ascending: true })
+  .order('blocker', { ascending: false })
+  .order('created_at', { ascending: false })
+  .limit(50);
 
     if (error) {
       return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
