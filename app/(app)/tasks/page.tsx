@@ -10,6 +10,7 @@ type Task = {
   due_date: string | null;
   source: string | null;
   blocker: boolean;
+  done: boolean;
   created_at: string;
 };
 
